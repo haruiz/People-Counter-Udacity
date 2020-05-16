@@ -1,0 +1,2 @@
+ npm install npm-run-all --save-dev
+ npm-run-all --parallel mqtt ui streaming
