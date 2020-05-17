@@ -2,7 +2,31 @@
 
 ## Explaining Custom Layers
 
-For this experiment, three different models from the TensorFlow object detection model zoo were evaluated, so all of them are compatible out-of-the-box by OpenVINO. For the model conversion the two classes below were implemented:
+For this experiment, three different models from the TensorFlow object detection model zoo were evaluated, so all of them are compatible out-of-the-box by OpenVINO. :
+A link to the original model is included, along with the command used in the terminal to convert it to an Intermediate Representation with the Model Optimizer. This can be noted in the project README or in the Submission Details section for the reviewer (on the submission page).
+
+- [ssd_mobilenet_v2_coco_2018_03_29](http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz)
+
+> model optimizer command:
+```commandline
+python "/opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py" --input_model "models/ssd_mobilenet_v2_coco_2018_03_29/frozen_inference_graph.pb" --transformations_config  "/opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/ssd_v2_support.json" --output_dir  "models/ssd_mobilenet_v2_coco_2018_03_29" --data_type   FP32  --input_shape "[1, 300, 300, 3]" --tensorflow_object_detection_api_pipeline_config "models/ssd_mobilenet_v2_coco_2018_03_29/pipeline.config"
+```
+
+- [faster_rcnn_inception_v2_coco_2018_01_28](http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2018_01_28.tar.gz)
+
+> model optimizer command:
+```commandline
+python "/opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py" --input_model "models/faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb" --transformations_config  "/opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/faster_rcnn_support.json" --output_dir  "models/faster_rcnn_inception_v2_coco_2018_01_28" --data_type   FP32 --reverse_input_channels --input_shape "[1, 300, 300, 3]" --tensorflow_object_detection_api_pipeline_config "models/faster_rcnn_inception_v2_coco_2018_01_28/pipeline.config" 
+```
+
+- [mask_rcnn_inception_v2_coco_2018_01_28](http://download.tensorflow.org/models/object_detection/mask_rcnn_inception_v2_coco_2018_01_28.tar.gz)
+
+> model optimizer command:
+```commandline
+python "/opt/intel/openvino/deployment_tools/model_optimizer/mo_tf.py" --input_model "models/mask_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.pb" --transformations_config  "/opt/intel/openvino/deployment_tools/model_optimizer/extensions/front/tf/mask_rcnn_support.json" --output_dir  "models/mask_rcnn_inception_v2_coco_2018_01_28" --data_type   FP32 --reverse_input_channels --input_shape "[1, 300, 300, 3]" --tensorflow_object_detection_api_pipeline_config "models/mask_rcnn_inception_v2_coco_2018_01_28/pipeline.config"
+```
+
+For the model conversion the two classes below were implemented
 
 ### OpenVINOUtil
 
@@ -120,11 +144,10 @@ class ModelZoo:
                                   pre_trained_model_folder, h=target_size[0], w=target_size[1], device=device)
 
 ```
-
-
 ## Comparing Model Performance
 
-For this experiment, three different models were evaluated:
+### Results in video
+
 - ssd_mobilenet_v2_coco_2018_03_29
 
 [![Video](https://img.youtube.com/vi/6jV5GTaYTkI/0.jpg)](https://www.youtube.com/watch?v=6jV5GTaYTkI)
@@ -137,7 +160,7 @@ For this experiment, three different models were evaluated:
 
 [![Video](https://img.youtube.com/vi/7OoWQ8PV09U/0.jpg)](https://www.youtube.com/watch?v=7OoWQ8PV09U)
 
-The table below shows the comparition between them:
+### Comparison Table:
 
 | Model | pre-conversion (GPU) | post-conversion (CPU) |
 | ------------- | ------------- | ------------- |
@@ -145,24 +168,33 @@ The table below shows the comparition between them:
 | faster_rcnn_inception_v2_coco_2018_01_28  | approx. FPS: 8.31 | approx. FPS: 6.73 |
 | mask_rcnn_inception_v2_coco_2018_01_28  | approx. FPS: 0.44 |  approx. FPS: 1.87 |
 
-
-
-
 ## Assess Model Use Cases
 
-Some of the scenarios where this application could be adapted are: 
-- For security purposes: such as control access solutions
+Some of the scenarios where this application could be adapted: 
+- Control access solutions for security purposes 
 - To estimate the time it takes a person to perform certain activities ( to identify possible bottlenecks):  for instance, voting during elections or withing a bank.
 
 ## Assess Effects on End User Needs
 
-One of the critical factors on the "People counter" solution is the detection model accuracy, that was identified when the ssd_mobilenet and the faster-RCNN architectures were compared. The SSD model shows a significant increase in the frame rate of the video; nevertheless, given that some times wasn't able to detect the persons well, it affects the stats. On the other hand, with the faster-RCNN model, the accuracy was much better, but the video's speed was compromised. As a strategy to mitigate that problem, a variable called frames_baseline was added, so this control the numbers of frames were changes between frames will be considered, it can be adjusted according to model. This approach shown improvement in the results.
+Discuss lighting, model accuracy, and camera focal length/image size, and the effects these may have on an end user requirement.
 
-## For running the app:
+#### Effects of lighting
+
+Variation in the lights conditions could affect the accuracy of the model negatively if, during the training phase, this aspect wasn't considered. It's important to evaluate how the lighting condition will be in the scene where our application will be performed to adjust the model if needed.
+
+#### model accuracy
+
+The selection of the model is another important factor; it was identified when the ssd_mobilenet and the faster-RCNN architectures were compared. The SSD model shows a significant increase in the frame rate of the video; nevertheless, given that some times wasn't able to detect the persons well, it affects the stats. On the other hand, with the faster-RCNN model, the accuracy was much better, but the video's speed was compromised. As a strategy to mitigate that problem, a variable called frames_baseline was added, so this control the numbers of frames were changes between frames will be considered, it can be adjusted according to model. This approach shown improvement in the results.
+
+#### focal length/image size
+
+The focal length, and the image size are crucial factors for the real-time processing; There are no doubts that always will be  good idea to use a high-resolution camera, which allows us to capture good quality images. However, it is vital to consider that this will require more processing power on the device where the application is going to be running.
+
+
+## Running the app:
 
 ```commandline
  npm install npm-run-all --save-dev
  npm-run-all --parallel mqtt ui streaming
 ./launch_video.sh
 ```
-

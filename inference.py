@@ -124,7 +124,7 @@ class Network:
 
 
 if __name__ == '__main__':
-    net = Network()
-    ModelZoo.download("rfcn_resnet101_coco", model_folder="./models", device="CPU",force_download=False)
-    #input_dict = net.load_model("models/faster_rcnn_inception_v2_coco_2018_01_28/frozen_inference_graph.xml", "CPU")
-    # net.load_model("models/ssd_mobilenet_v2_coco_2018_03_29/frozen_inference_graph.xml", "CPU")
+    #ModelZoo.download("ssd_mobilenet_v2_coco", model_folder="./models", device="CPU",force_download=True)
+    #ModelZoo.download("faster_rcnn_inception_v2_coco", model_folder="./models", device="CPU", force_download=True)
+    ModelZoo.download("mask_rcnn_inception_v2_coco", model_folder="./models", device="CPU", force_download=True)
+

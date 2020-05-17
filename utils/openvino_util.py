@@ -33,5 +33,6 @@ class OpenVINOUtil:
                     model_config
                     )
         cmd = " ".join([line.strip() for line in cmd.splitlines()])
+        print(cmd)
         print(subprocess.check_output(cmd, shell=True).decode())
 
